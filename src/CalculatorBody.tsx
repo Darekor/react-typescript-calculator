@@ -4,12 +4,20 @@ import { useState } from "react"
 import { evaluate } from "mathjs";
 
 const SYNTAXERRORR = "Syntax Error!";
+
 function CalculatorBody() {
 
-  const [display,setDisplay] = useState("2+2");
+  const [display,setDisplay] = useState("");
 
   function addSymbol(symbol:string){
-    setDisplay(display+symbol);
+    if (['+','-','*','/','.'].includes(symbol) && ['+','-','*','/','.'].includes(display[display.length-1]))
+        setDisplay(display.substring(0,display.length-1)+symbol);
+    else
+      setDisplay(display+symbol);
+  }
+
+  function clearDisplay(){
+    setDisplay("");
   }
 
   function removeSymbol(){
@@ -17,15 +25,23 @@ function CalculatorBody() {
   }
 
   function calculate(){
-    try {
-      let res = evaluate(display).toString();
-      return res;
-    } 
-    catch (error) {
-      return SYNTAXERRORR;
-    }
+    if (display=="")
+      return "";
+      try {
+        let res:string = evaluate(display).toString();
+        return res;
+      } 
+      catch (error) {
+        return SYNTAXERRORR;
+      }
   }
 
+  function formatResult(){
+    var t = calculate();
+    if (t!=="" && t!==SYNTAXERRORR)
+      return "= " + t;
+    return t;
+  }
 
   function makeResult(){
     let t = calculate()
@@ -34,9 +50,9 @@ function CalculatorBody() {
   }
 
   return (
-    <div>
-      <CalculatorDisplay value={display} result={calculate()}/>
-      <ButtonContainer onAdd={addSymbol} onRemove={removeSymbol} onEquality={makeResult}/>
+    <div id="calculator-body">
+      <CalculatorDisplay value={display} result={formatResult()}/>
+      <ButtonContainer onAdd={addSymbol} onRemove={removeSymbol} onEquality={makeResult} onClear={clearDisplay}/>
     </div>
   )
 }
